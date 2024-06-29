@@ -6,21 +6,34 @@ This is a class BaseModel of the project
 
 from datetime import datetime
 import uuid
+from models import storage
+import models
 
 
 class BaseModel:
     """
     This is a class defintion of the BaseModel class.
     """
-    
-    def __init__(self):
+
+    def __init__(self, *args, **kwargs):
         """
         Initializes a new BaseModel instance
         """
 
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+        if len(kwargs) > 0:
+            for key, value in kwargs.items():
+                if key == '__class__':
+                    continue
+                if key in ['created_at', 'updated_at']:
+                    setattr(self, key, datetime.fromisoformat(value))
+                else:
+                    setattr(self, key, value)
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+
+            storage.new(self)
 
     def __str__(self):
         """ This is the string representation of BaseModel."""
@@ -31,6 +44,8 @@ class BaseModel:
         """Updates the public instance updated_at with the current datetime."""
 
         self.updated_at = datetime.utcnow()
+
+        storage.save()
 
     def to_dict(self):
         """ Returns a dictionary conatining all keys/values of __dict__
