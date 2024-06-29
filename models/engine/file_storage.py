@@ -1,55 +1,45 @@
 #!/usr/bin/python3
-"""
-This is the class FileSrorage.
-"""
+"""This is a FileStorage Class."""
 
 
 import json
+from models.base_model import BaseModel
+from models.user import User
 
 
 class FileStorage:
-    """Definition of the FileStorage class."""
+    """This class manages storage of hbnb models in JSON format"""
 
-    def __init__(self):
-        """Initializes the FileStorage Class."""
-
-        self.__file_path = 'file.json'
-        self.__objects = {}
+    __file_path = 'file.json'
+    __objects = {}
 
     def all(self):
-        """Returns the dict __objects which stores all objects."""
-        return (self.__objects)
+        """Returns a dictionary of models currently in storage"""
+        return FileStorage.__objects
 
     def new(self, obj):
-        """Adds a new object to __objects."""
-
-        class_name = obj.__class__.__name__
-        object_id = obj.id
-        key = (f"{class_name}.{object_id}")
-        self.__objects[key] = obj
+        """Adds new object to storage dictionary"""
+        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def save(self):
-        """Serializes __objects to JSON file."""
-
-        object_dict = {}
-        for key, obj in self.__objects.items():
-            object_dict[key] = obj.to_dict()
-
-        with open(self.__file_path, 'w', encoding='UTF-8') as file:
-            json.dump(object_dict, file)
+        """Saves storage dictionary to file"""
+        with open(FileStorage.__file_path, 'w') as f:
+            temp = {}
+            for key, val in self.all().items():
+                temp[key] = val.to_dict()
+            json.dump(temp, f)
 
     def reload(self):
-        """Deserialaizes the JSON file to __objects."""
-
+        """Loads storage dictionary from file"""
         try:
-            with open(self.__file_path, 'r', encoding='UTF-8') as file:
-                object_dict = json.load(file)
-
-                for key, value in object_dict.items():
-                    class_name = value.pop('__class__')
-                    cls = globals()[class_name]
-                    instance = cls(**value)
-                    self.__objects[key] = instance
-
+            with open(FileStorage.__file_path, 'r') as f:
+                temp = json.load(f)
+                for key, val in temp.items():
+                    class_name = val['__class__']
+                    if class_name == "BaseModel":
+                        obj = BaseModel(**val)
+                    elif class_name == "User":
+                        obj = User(**val)
+                    self.all()[key] = obj
         except FileNotFoundError:
             pass

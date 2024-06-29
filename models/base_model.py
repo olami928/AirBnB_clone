@@ -6,7 +6,6 @@ This is a class BaseModel of the project
 
 from datetime import datetime
 import uuid
-from models import storage
 import models
 
 
@@ -33,6 +32,7 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
 
+            from models import storage
             storage.new(self)
 
     def __str__(self):
@@ -45,6 +45,7 @@ class BaseModel:
 
         self.updated_at = datetime.utcnow()
 
+        from models import storage
         storage.save()
 
     def to_dict(self):

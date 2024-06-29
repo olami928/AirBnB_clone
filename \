@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+"""THis is a class  that contains the entry
+point of the command interpreter:"""
+
+
+import cmd
+
+
+class HBNBCommand(cmd.Cmd):
+    """Command interpreter for the HBNB project."""
+    prompt = '(hbnb) '
+
+    def do_quit(self, arg):
+        """Quit command to exit the program."""
+
+        return True
+
+    def do_EOF(self, arg):
+        """EOF command to exit the program."""
+
+        return True
+
+    def emptyline(self):
+        """overrides the emptyline methos when an emptyline is input."""
+        pass
+
+    def do_help(self, arg):
+        """Get help on commands."""
+        if arg:
+            if hasattr(self, 'help_' + arg):
+                func = getatttr(self, 'help_' + arg)
+                func()
+            else:
+                print(f"No help found for '{arg}'")
+        else:
+            super().do_help(arg)
+
+
+if __name__ == '__main__':
+    HBNBCommand().cmdloop()
