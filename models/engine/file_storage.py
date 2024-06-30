@@ -37,14 +37,12 @@ class FileStorage:
     def reload(self):
         """Loads storage dictionary from file"""
         try:
-            with open(FileStorage.__file_path, 'r') as f:
-                temp = json.load(f)
-                for key, val in temp.items():
-                    class_name = val['__class__']
-                    if class_name == "BaseModel":
-                        obj = BaseModel(**val)
-                    elif class_name == "User":
-                        obj = User(**val)
-                    self.all()[key] = obj
+            with open(FileStorage.__file_path, 'r') as file:
+                data = json.load(file)
+                for key, obj_data in data.items():
+                    cls_name = obj_data['__class__']
+                    cls = globals()[cls_name]
+                    obj = cls(**obj_data)
+                    FileStorage.__objects[key] = obj
         except FileNotFoundError:
             pass
